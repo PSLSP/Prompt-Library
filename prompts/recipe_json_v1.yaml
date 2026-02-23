@@ -1,6 +1,6 @@
 name: "Генератор структурированного JSON-рецепта"
 version: "v1.0"
-owner: "spuzyrev"
+owner: "PSLSP"
 tags:
   - "recipes"
   - "json"
