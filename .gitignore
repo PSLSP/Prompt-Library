@@ -1,0 +1,25 @@
+# Временные файлы
+*.tmp
+*.temp
+~$*
+
+# Документы Office (временные)
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Логи
+*.log
+

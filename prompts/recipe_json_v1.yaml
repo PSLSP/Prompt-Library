@@ -1,0 +1,229 @@
+name: "Генератор структурированного JSON-рецепта"
+version: "v1.0"
+owner: "spuzyrev"
+tags:
+  - "recipes"
+  - "json"
+  - "nutrition"
+  - "image_prompt"
+  - "ru"
+  - "food"
+
+goal: >
+  На основе названия блюда, списка ингредиентов и/или типа кухни
+  сгенерировать реалистичный рецепт в виде строго валидного JSON
+  с описанием рецепта, пошаговой инструкцией, нутриционной ценностью
+  и промптом для генерации фотореалистичного изображения блюда.
+
+prompt: |-
+  Ты — кулинарный ассистент и эксперт по нутрициологии.
+
+  Входные данные:
+  - Название блюда (опционально): {dish_name}
+  - Ингредиенты (опционально): {ingredients}
+  - Тип кухни (опционально): {cuisine}
+
+  Задача:
+  1. На основе входных данных придумай реалистичный рецепт блюда.
+  2. Используй только ту информацию, которая передана во входе. Если задано только название — подбери типичные ингредиенты. Если только ингредиенты — подбери подходящее блюдо.
+  3. Если по входным данным нельзя подобрать осмысленный рецепт, верни JSON-строку:
+     "По заданной информации отсутствует подходящий рецепт блюда. Уточните название блюда и/или список ингредиентов"
+
+  Требования к ответу:
+  - Верни ТОЛЬКО валидный JSON без каких-либо пояснений, текста вокруг и без markdown-код-блоков.
+  - Все текстовые поля — на русском языке, кроме поля image_prompt (оно на английском).
+  - bread_units = углеводы / 12, округлить до 1 знака после запятой.
+  - Если какого‑то значения нет в явном виде, оцени его разумно (время, калории и т.п.).
+
+  Структура JSON:
+  {
+    "recipe": {
+      "name": "название блюда",
+      "cuisine": "тип кухни",
+      "servings": число,
+      "prep_time": "время подготовки, например, '15 минут'",
+      "cook_time": "время приготовления, например, '30 минут'",
+      "total_time": "общее время, например, '45 минут'",
+      "ingredients": [
+        {
+          "name": "название ингредиента",
+          "amount": "количество, например, '200 г' или '2 шт'",
+          "notes": "дополнительные заметки (опционально)"
+        }
+      ]
+    },
+    "cooking_steps": [
+      {
+        "step_number": число,
+        "description": "подробное описание шага",
+        "duration": "время шага, например, '5 минут'"
+      }
+    ],
+    "nutrition": {
+      "per_serving": {
+        "calories": число,
+        "protein": число,
+        "fat": число,
+        "carbs": число,
+        "bread_units": число с 1 знаком после запятой
+      },
+      "per_100g": {
+        "calories": число,
+        "protein": число,
+        "fat": число,
+        "carbs": число,
+        "bread_units": число с 1 знаком после запятой
+      }
+    },
+    "image_prompt": "detailed professional prompt in English: describe the dish, plating, texture, colors, serving style; specify that it is a high-quality food photograph (photograph, photo), realistic style, natural lighting, background, composition."
+  }
+
+examples:
+  - title: "Только название блюда"
+    input:
+      dish_name: "Куриное филе с овощами на сковороде"
+      ingredients: null
+      cuisine: "европейская"
+    output_snippet: |-
+      {
+        "recipe": {
+          "name": "Куриное филе с овощами на сковороде",
+          "cuisine": "европейская",
+          "servings": 2,
+          "prep_time": "15 минут",
+          "cook_time": "20 минут",
+          "total_time": "35 минут",
+          "ingredients": [
+            {
+              "name": "куриное филе",
+              "amount": "300 г"
+            },
+            {
+              "name": "болгарский перец",
+              "amount": "1 шт"
+            },
+            {
+              "name": "кабачок",
+              "amount": "1 шт"
+            }
+            ...
+          ]
+        },
+        "cooking_steps": [
+          {
+            "step_number": 1,
+            "description": "Подготовьте все ингредиенты: вымойте и нарежьте овощи, куриное филе нарежьте небольшими кусочками.",
+            "duration": "10 минут"
+          }
+          ...
+        ],
+        "nutrition": {
+          "per_serving": {
+            "calories": 350,
+            "protein": 32,
+            "fat": 12,
+            "carbs": 25,
+            "bread_units": 2.1
+          }
+        },
+        "image_prompt": "high-quality food photograph of pan-fried chicken breast with colorful vegetables..."
+      }
+
+  - title: "Только ингредиенты"
+    input:
+      dish_name: null
+      ingredients:
+        - "овсяные хлопья"
+        - "молоко"
+        - "банан"
+        - "мёд"
+      cuisine: null
+    output_snippet: |-
+      {
+        "recipe": {
+          "name": "Овсяная каша с бананом и мёдом",
+          "cuisine": "европейская",
+          "servings": 1,
+          "prep_time": "5 минут",
+          "cook_time": "10 минут",
+          "total_time": "15 минут",
+          "ingredients": [
+            {
+              "name": "овсяные хлопья",
+              "amount": "40 г"
+            },
+            {
+              "name": "молоко",
+              "amount": "200 мл"
+            },
+            {
+              "name": "банан",
+              "amount": "1 шт"
+            },
+            {
+              "name": "мёд",
+              "amount": "1 ст. л."
+            }
+          ]
+        },
+        "nutrition": {
+          "per_serving": {
+            "calories": 320,
+            "protein": 9,
+            "fat": 7,
+            "carbs": 55,
+            "bread_units": 4.6
+          }
+        },
+        "image_prompt": "bright morning photograph of a bowl of oatmeal with sliced banana and honey..."
+      }
+
+test_cases:
+  - name: "TC1 — только название блюда"
+    description: "Модель получает только название и тип кухни и должна сгенерировать полный JSON-рецепт."
+    input:
+      dish_name: "Паста с томатным соусом"
+      ingredients: null
+      cuisine: "итальянская"
+    expectations:
+      expect_valid_json: true
+      expect_error_message: false
+      must_have_fields:
+        - "recipe.name"
+        - "recipe.ingredients"
+        - "cooking_steps"
+        - "nutrition.per_serving.bread_units"
+
+  - name: "TC2 — только список ингредиентов"
+    description: "Модель получает только список ингредиентов и должна подобрать подходящее блюдо с полным JSON-ответом."
+    input:
+      dish_name: null
+      ingredients:
+        - "куриное филе"
+        - "рис"
+        - "морковь"
+        - "лук репчатый"
+        - "растительное масло"
+      cuisine: null
+    expectations:
+      expect_valid_json: true
+      expect_error_message: false
+      must_have_fields:
+        - "recipe.name"
+        - "recipe.ingredients"
+        - "cooking_steps"
+        - "nutrition.per_100g.carbs"
+
+  - name: "TC3 — нерелевантный ввод"
+    description: "Модель получает бессмысленный ввод и должна вернуть текст ошибки в формате JSON-строки."
+    input:
+      dish_name: "asdfghjk qwerty"
+      ingredients:
+        - "12345"
+      cuisine: "???"
+    expectations:
+      expect_valid_json: true
+      expect_error_message: true
+      exact_message: "По заданной информации отсутствует подходящий рецепт блюда. Уточните название блюда и/или список ингредиентов"
+
+
