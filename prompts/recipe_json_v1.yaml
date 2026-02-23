@@ -75,11 +75,11 @@ prompt: |-
         "bread_units": число с 1 знаком после запятой
       }
     },
-    "image_prompt": "detailed professional prompt in English: describe the dish, plating, texture, colors, serving style; specify that it is a high-quality food photograph (photograph, photo), realistic style, natural lighting, background, composition."
+    "image_prompt": "detailed professional prompt in English: describe the dish, plating, texture, colors, serving style; specify that it is a high-quality food photograph (photo), realistic style, natural lighting, background, composition."
   }
 
 examples:
-  - title: "Только название блюда"
+  - title: "Только название блюда и тип кухни"
     input:
       dish_name: "Куриное филе с овощами на сковороде"
       ingredients: null
@@ -179,8 +179,8 @@ examples:
       }
 
 test_cases:
-  - name: "TC1 — только название блюда"
-    description: "Модель получает только название и тип кухни и должна сгенерировать полный JSON-рецепт."
+  - name: "TC1 — только название блюда и тип кухни"
+    description: "Модель получает только название и тип кухни и должна сгенерировать полный JSON-рецепт и промпт для генерации фотореалистичного изображения блюда."
     input:
       dish_name: "Паста с томатным соусом"
       ingredients: null
@@ -193,9 +193,10 @@ test_cases:
         - "recipe.ingredients"
         - "cooking_steps"
         - "nutrition.per_serving.bread_units"
+        - "image_prompt"
 
   - name: "TC2 — только список ингредиентов"
-    description: "Модель получает только список ингредиентов и должна подобрать подходящее блюдо с полным JSON-ответом."
+    description: "Модель получает только список ингредиентов и должна подобрать подходящее блюдо с полным JSON-ответом и сгерерировать промпт для генерации фотореалистичного изображения блюда."
     input:
       dish_name: null
       ingredients:
@@ -213,6 +214,7 @@ test_cases:
         - "recipe.ingredients"
         - "cooking_steps"
         - "nutrition.per_100g.carbs"
+        - "image_prompt"
 
   - name: "TC3 — нерелевантный ввод"
     description: "Модель получает бессмысленный ввод и должна вернуть текст ошибки в формате JSON-строки."
